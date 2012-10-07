@@ -1,8 +1,95 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DLock.Server", "Dlock.Server\DLock.Server.csproj", "{CF250C1C-BEFD-49D6-B405-AC6804345B2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DLock.Client", "Dlock.Client\DLock.Client.csproj", "{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DLockService", "DlockService\DLockService.csproj", "{011B1574-759C-48B2-835E-72D1809167CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{9B0146C3-89D3-4445-A7E5-E1826089ED56}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Share files", "Share files", "{40B2AF4B-68C4-4A60-8065-F9395632A11D}"
+	ProjectSection(SolutionItems) = preProject
+		DLockEvent.cs = DLockEvent.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IO", "IO", "{36F6CF31-C315-4C6E-93AE-BD046AB91C85}"
+	ProjectSection(SolutionItems) = preProject
+		Framework\IO\File.cs = Framework\IO\File.cs
+		Framework\IO\LogFile.cs = Framework\IO\LogFile.cs
+		Framework\IO\Path.cs = Framework\IO\Path.cs
+		Framework\IO\Stream.cs = Framework\IO\Stream.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reflection", "Reflection", "{2F3A903C-A365-4993-8859-2064C7456070}"
+	ProjectSection(SolutionItems) = preProject
+		Framework\Reflection\Instance.cs = Framework\Reflection\Instance.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serialization", "Serialization", "{772C5799-33FD-4FFD-AEB3-221328590F47}"
+	ProjectSection(SolutionItems) = preProject
+		Framework\Serialization\BinSerialization.cs = Framework\Serialization\BinSerialization.cs
+		Framework\Serialization\XmlSerialization.cs = Framework\Serialization\XmlSerialization.cs
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CF250C1C-BEFD-49D6-B405-AC6804345B2E}.Release|x86.ActiveCfg = Release|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1D1F07C9-DD51-4A48-9BE8-B83D82CEEF33}.Release|x86.ActiveCfg = Release|Any CPU
+		{011B1574-759C-48B2-835E-72D1809167CD}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Debug|x86.ActiveCfg = Debug|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Debug|x86.Build.0 = Debug|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Release|Any CPU.ActiveCfg = Release|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Release|Mixed Platforms.Build.0 = Release|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Release|x86.ActiveCfg = Release|x86
+		{011B1574-759C-48B2-835E-72D1809167CD}.Release|x86.Build.0 = Release|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Debug|x86.ActiveCfg = Debug|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Debug|x86.Build.0 = Debug|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Release|Any CPU.ActiveCfg = Release|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Release|Mixed Platforms.Build.0 = Release|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Release|x86.ActiveCfg = Release|x86
+		{9B0146C3-89D3-4445-A7E5-E1826089ED56}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{36F6CF31-C315-4C6E-93AE-BD046AB91C85} = {40B2AF4B-68C4-4A60-8065-F9395632A11D}
+		{2F3A903C-A365-4993-8859-2064C7456070} = {40B2AF4B-68C4-4A60-8065-F9395632A11D}
+		{772C5799-33FD-4FFD-AEB3-221328590F47} = {40B2AF4B-68C4-4A60-8065-F9395632A11D}
 	EndGlobalSection
 EndGlobal
