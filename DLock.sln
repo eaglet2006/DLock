@@ -33,6 +33,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serialization", "Serializat
 		Framework\Serialization\XmlSerialization.cs = Framework\Serialization\XmlSerialization.cs
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Events", "Events", "{44CB6A68-BC4A-4929-9DC4-CE70D8ADFE52}"
+	ProjectSection(SolutionItems) = preProject
+		Framework\Events\DLockEvent.cs = Framework\Events\DLockEvent.cs
+		Framework\Events\MutexEvent.cs = Framework\Events\MutexEvent.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,5 +97,6 @@ Global
 		{36F6CF31-C315-4C6E-93AE-BD046AB91C85} = {40B2AF4B-68C4-4A60-8065-F9395632A11D}
 		{2F3A903C-A365-4993-8859-2064C7456070} = {40B2AF4B-68C4-4A60-8065-F9395632A11D}
 		{772C5799-33FD-4FFD-AEB3-221328590F47} = {40B2AF4B-68C4-4A60-8065-F9395632A11D}
+		{44CB6A68-BC4A-4929-9DC4-CE70D8ADFE52} = {40B2AF4B-68C4-4A60-8065-F9395632A11D}
 	EndGlobalSection
 EndGlobal

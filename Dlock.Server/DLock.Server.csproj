@@ -8,7 +8,7 @@
     <ProjectGuid>{CF250C1C-BEFD-49D6-B405-AC6804345B2E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Dlock.Server</RootNamespace>
+    <RootNamespace>DLock.Server</RootNamespace>
     <AssemblyName>DLock.Server</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
