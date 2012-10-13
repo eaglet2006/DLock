@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Share files", "Share files", "{40B2AF4B-68C4-4A60-8065-F9395632A11D}"
 	ProjectSection(SolutionItems) = preProject
-		DLockEvent.cs = DLockEvent.cs
+		Constants.cs = Constants.cs
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IO", "IO", "{36F6CF31-C315-4C6E-93AE-BD046AB91C85}"

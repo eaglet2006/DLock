@@ -30,7 +30,7 @@ namespace DLock.Client
         //     The calling thread does not own the mutex.
         public void ReleaseMutex()
         {
-
+            Provider.MutexMgr.ReleaseMutex(this);
         }
 
         //
@@ -89,7 +89,7 @@ namespace DLock.Client
         //     in another application domain.
         public bool WaitOne(int millisecondsTimeout)
         {
-            return true;
+            return Provider.MutexMgr.WaitOne(this, millisecondsTimeout);
         }
 
         //

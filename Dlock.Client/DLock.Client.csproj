@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Constants.cs">
+      <Link>Constants.cs</Link>
+    </Compile>
     <Compile Include="..\Framework\Events\DLockEvent.cs">
       <Link>Framework\Events\DLockEvent.cs</Link>
     </Compile>

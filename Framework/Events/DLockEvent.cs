@@ -79,9 +79,9 @@ public abstract class DLockEvent
     /// </summary>
     /// <param name="bytes">body of data</param>
     /// <returns></returns>
-    public static DLockEvent FromBytes(byte[] bytes)
+    public static T FromBytes<T>(byte[] bytes)
     {
-        return DLock.Framework.Serialization.XmlSerialization<DLockEvent>.Deserialize(
+        return DLock.Framework.Serialization.XmlSerialization<T>.Deserialize(
             new System.IO.MemoryStream(bytes));
     }
 }

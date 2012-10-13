@@ -24,8 +24,11 @@ namespace DLock.Server
         /// <param name="args"></param>
         static void ReceiveEventHandler(object sender, ReceiveEventArgs args)
         {
-            switch ((DLockEvent)args.Event)
+            switch ((DLockEvent.GlobalEvent)args.Event)
             {
+                case DLockEvent.GlobalEvent.MutexEvent:
+                    MutexManager.ReceiveEventHandler(DLockEvent.FromBytes<MutexEvent>(args.Data));
+                    break;
                 default:
                     break;
             }

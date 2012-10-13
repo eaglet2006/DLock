@@ -8,6 +8,7 @@ namespace DLockService
 {
     static class Program
     {
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -15,15 +16,16 @@ namespace DLockService
         {
             if (args.Length == 0)
             {
-
+                DServer.Run(Constants.DefaultPort);
             }
             else
             {
                 ServiceBase[] ServicesToRun;
                 ServicesToRun = new ServiceBase[] 
-			{ 
-				new DlockService() 
-			};
+			    { 
+				    new DlockService() 
+			    };
+
                 ServiceBase.Run(ServicesToRun);
             }
         }

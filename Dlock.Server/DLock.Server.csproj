@@ -43,8 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\DLockEvent.cs">
-      <Link>DLockEvent.cs</Link>
+    <Compile Include="..\Framework\Events\DLockEvent.cs">
+      <Link>Framework\Events\DLockEvent.cs</Link>
+    </Compile>
+    <Compile Include="..\Framework\Events\MutexEvent.cs">
+      <Link>Framework\Events\MutexEvent.cs</Link>
     </Compile>
     <Compile Include="..\Framework\IO\File.cs">
       <Link>Framework\IO\File.cs</Link>
@@ -68,6 +71,7 @@
       <Link>Framework\Serialization\XmlSerialization.cs</Link>
     </Compile>
     <Compile Include="DLockServer.cs" />
+    <Compile Include="MutexManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Report.cs" />
   </ItemGroup>

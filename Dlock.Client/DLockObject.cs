@@ -14,6 +14,8 @@ namespace DLock.Client
 
         protected DLockEvent.GlobalEvent _GlobalEvent;
 
+        protected DLockProvider Provider { get; private set; }
+
         /// <summary>
         /// Name of distributed object
         /// </summary>
@@ -31,6 +33,7 @@ namespace DLock.Client
 
         internal DLockObject(DLockProvider provider, string name)
         {
+            Provider = provider;
             Name = name;
         }
 

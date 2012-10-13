@@ -11,6 +11,8 @@ namespace DLock.Client
         {
             Successful = 0,
             Disconnect = 1,
+
+            Mutex = 100,
         }
 
         public ErrorType Error { get; private set; }

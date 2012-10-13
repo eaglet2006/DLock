@@ -14,7 +14,15 @@ namespace DLock.Client
 
         SingleConnectionCable _Connection;
 
-        DLock.Client.ObjManager.MutexManager _MutexMangager;
+        readonly DLock.Client.ObjManager.MutexManager _MutexMangager;
+
+        internal DLock.Client.ObjManager.MutexManager MutexMgr
+        {
+            get
+            {
+                return _MutexMangager;
+            }
+        }
 
         /// <summary>
         /// DataReceived event will be called back when server get message from client which connect to.
@@ -26,7 +34,7 @@ namespace DLock.Client
             switch ((DLockEvent.GlobalEvent)args.Event)
             {
                 case DLockEvent.GlobalEvent.MutexEvent:
-                    _MutexMangager.EventReceivedHandler(DLockEvent.FromBytes(args.Data));
+                    _MutexMangager.EventReceivedHandler(DLockEvent.FromBytes<MutexEvent>(args.Data));
                     break;
             }
         }
@@ -59,7 +67,7 @@ namespace DLock.Client
             switch (globalEvent)
             {
                 case DLockEvent.GlobalEvent.MutexEvent:
-                    DLockObject mutex = new Mutex(this, name);
+                    result = new Mutex(this, name);
                     break;
                     
             }
