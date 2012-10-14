@@ -16,6 +16,7 @@ public abstract class DLockEvent
         ApplyToken = 2, //apply a token from server
         ReturnToken = 3, //return toekn to server
         RequireToken = 4, //server send this event to client to require the token. Client need return the token immediately.
+        Exit = 100, //Exit when all the mutex with same name are closed.
     }
 
     /// <summary>

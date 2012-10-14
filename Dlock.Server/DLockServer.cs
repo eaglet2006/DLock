@@ -14,6 +14,8 @@ namespace DLock.Server
         #region fields
         readonly int _TcpPort;
         NTcpListener _Listener;
+        MutexManager _MutexManager;
+
         #endregion
 
         #region event handles
@@ -22,12 +24,13 @@ namespace DLock.Server
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        static void ReceiveEventHandler(object sender, ReceiveEventArgs args)
+        void ReceiveEventHandler(object sender, ReceiveEventArgs args)
         {
             switch ((DLockEvent.GlobalEvent)args.Event)
             {
                 case DLockEvent.GlobalEvent.MutexEvent:
-                    MutexManager.ReceiveEventHandler(DLockEvent.FromBytes<MutexEvent>(args.Data));
+                    _MutexManager.ReceiveEventHandler(DLockEvent.FromBytes<MutexEvent>(args.Data),
+                        ((System.Net.IPEndPoint)args.RemoteIPEndPoint).Address, args.CableId);
                     break;
                 default:
                     break;
@@ -39,7 +42,7 @@ namespace DLock.Server
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        static void DisconnectEventHandler(object sender, DisconnectEventArgs args)
+        void DisconnectEventHandler(object sender, DisconnectEventArgs args)
         {
             //Console.WriteLine("Remote socket:{0} disconnected.", args.RemoteIPEndPoint);
         }
@@ -50,7 +53,7 @@ namespace DLock.Server
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        static void AcceptedEventHandler(object sender, AcceptEventArgs args)
+        void AcceptedEventHandler(object sender, AcceptEventArgs args)
         {
             //Console.WriteLine("Remote socket:{0} connected.", args.RemoteIPEndPoint);
         }
@@ -83,6 +86,10 @@ namespace DLock.Server
 
                 //Accepted event will be called back when specified client connected
                 _Listener.Accepted += new EventHandler<AcceptEventArgs>(AcceptedEventHandler);
+
+                //Init managers
+                _MutexManager = new MutexManager(_Listener);
+
 
                 //Start listening.
                 //This function will not block current thread.
