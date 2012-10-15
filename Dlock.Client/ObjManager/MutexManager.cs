@@ -185,7 +185,7 @@ namespace DLock.Client.ObjManager
                             mEvent.Event = DLockEvent.DEvent.InitApplyToken;
                             break;
 
-                        case State.RequireToken:
+                        case State.Idle:
                             mEvent.Handle = Handle;
                             mEvent.Event = DLockEvent.DEvent.ApplyToken;
                             break;
@@ -198,9 +198,9 @@ namespace DLock.Client.ObjManager
                     if (mEvent != null)
                     {
                         mEvent.Name = mutex.Name;
+                        ASend(mEvent);
                     }
 
-                    ASend(mEvent);
                     _WaitEvent.Reset();
 
                     entrySW.Stop();
@@ -244,13 +244,23 @@ namespace DLock.Client.ObjManager
 
         internal void EventReceivedHandler(DLockEvent dEvent)
         {
+            NamedMutexMgr namedMutexMgr;
+            
             lock (_LockObj)
             {
-                NamedMutexMgr namedMutexMgr;
                 if (_NamedMutexMgrDict.TryGetValue(dEvent.Name, out namedMutexMgr))
                 {
                     namedMutexMgr.EventReceivedHandler(dEvent);
                 }
+                else
+                {
+                    namedMutexMgr = null;
+                }
+            }
+
+            if (namedMutexMgr != null)
+            {
+                namedMutexMgr.EventReceivedHandler(dEvent);
             }
         }
 
@@ -264,10 +274,10 @@ namespace DLock.Client.ObjManager
                     namedMutexMgr.ReleaseMutex(mutex);
 
                     //no thread wait for this mutex, remove it from manager. 
-                    if (namedMutexMgr.Count == 0)
-                    {
-                        _NamedMutexMgrDict.Remove(mutex.Name);
-                    }
+                    //if (namedMutexMgr.Count == 0)
+                    //{
+                    //    _NamedMutexMgrDict.Remove(mutex.Name);
+                    //}
                 }
                 else
                 {
@@ -278,18 +288,20 @@ namespace DLock.Client.ObjManager
 
         internal bool WaitOne(Mutex mutex, int millisecondsTimeout)
         {
+            NamedMutexMgr namedMutexMgr;
+
             lock (_LockObj)
             {
-                NamedMutexMgr namedMutexMgr;
                 if (!_NamedMutexMgrDict.TryGetValue(mutex.Name, out namedMutexMgr))
                 {
                     //No thread wait for, add to manager.
                     namedMutexMgr = new NamedMutexMgr(_Provider);
                     _NamedMutexMgrDict.Add(mutex.Name, namedMutexMgr);
                 }
-
-                return namedMutexMgr.WaitOne(mutex, millisecondsTimeout);
             }
+
+            return namedMutexMgr.WaitOne(mutex, millisecondsTimeout);
+
         }
 
 

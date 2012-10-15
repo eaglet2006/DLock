@@ -17,15 +17,17 @@ namespace DLock.Server
             internal UInt16 CableId { get; private set; }
             internal int Handle { get; private set; }
             internal bool KeepToken { get; set; }
+            internal DLockEvent.DEvent LastEvent { get; set; }
             internal bool ApplyingToken { get; set; }
 
-            internal MutexHanlde(IPAddress ipAddress, UInt16 cableId, int handle)
+            internal MutexHanlde(IPAddress ipAddress, UInt16 cableId, int handle, DLockEvent.DEvent lastEvent)
             {
                 IP = ipAddress;
                 CableId = cableId;
                 Handle = handle;
                 KeepToken = false;
                 ApplyingToken = false;
+                LastEvent = lastEvent;
             }
 
             internal void SetKeepToken(bool value)
@@ -83,7 +85,7 @@ namespace DLock.Server
                     if (_Queue.FirstOrDefault(mToken => mToken.Handle == dEvent.Handle) == null)
                     {
                         //not exist, add a new MutexToken
-                        _Queue.AddLast(new MutexHanlde(ipAddress, cableId, dEvent.Handle));
+                        _Queue.AddLast(new MutexHanlde(ipAddress, cableId, dEvent.Handle, dEvent.Event));
                     }
 
                     if ((!_Queue.First.Value.KeepToken && _Queue.First.Value.Handle == dEvent.Handle) ||
@@ -92,7 +94,7 @@ namespace DLock.Server
                         //only one mutex client or first mutex handle is for the appling client and doesn't keep token. 
                         //Send apply token immidiately.
                         if (_Listener.AsyncSend(_Queue.First.Value.CableId, (uint)DLockEvent.GlobalEvent.MutexEvent,
-                            new MutexEvent(Name, DLockEvent.DEvent.RequireToken, _Queue.First.Value.Handle).GetBytes()))
+                            new MutexEvent(Name, dEvent.Event, _Queue.First.Value.Handle).GetBytes()))
                         {
                             _Queue.First.Value.SetKeepToken(true);
                         }
@@ -105,25 +107,38 @@ namespace DLock.Server
                         {
                             //first mutex handle does not keep the token
                             //only happen when first mutex handle send apply token event and disconnect imidiately  
+                           
                             _Queue.Remove(mutexHanlde);
                             _Queue.AddFirst(mutexHanlde);
 
                             if (_Listener.AsyncSend(mutexHanlde.CableId, (uint)DLockEvent.GlobalEvent.MutexEvent,
-                                new MutexEvent(Name, DLockEvent.DEvent.RequireToken, mutexHanlde.Handle).GetBytes()))
+                                new MutexEvent(Name, dEvent.Event, mutexHanlde.Handle).GetBytes()))
                             {
                                 mutexHanlde.SetKeepToken(true);
                             }
                         }
                         else
                         {
-                            //Other client is keeping token now
-                            //Need require the token from that client and give this client token
-                            mutexHanlde.ApplyingToken = true;
-
-                            if (_Listener.AsyncSend(_Queue.First.Value.CableId, (uint)DLockEvent.GlobalEvent.MutexEvent,
-                                new MutexEvent(Name, DLockEvent.DEvent.RequireToken, _Queue.First.Value.Handle).GetBytes()))
+                            if (_Queue.First.Value.Handle != dEvent.Handle)
                             {
-                                _Queue.First.Value.SetKeepToken(true);
+                                //Other client is keeping token now
+                                //Need require the token from that client and give this client token
+                                mutexHanlde.ApplyingToken = true;
+                                mutexHanlde.LastEvent = dEvent.Event;
+
+                                if (_Listener.AsyncSend(_Queue.First.Value.CableId, (uint)DLockEvent.GlobalEvent.MutexEvent,
+                                    new MutexEvent(Name, DLockEvent.DEvent.RequireToken, _Queue.First.Value.Handle).GetBytes()))
+                                {
+                                    //_Queue.First.Value.SetKeepToken(true);
+                                }
+                            }
+                            else
+                            {
+                                if (_Listener.AsyncSend(_Queue.First.Value.CableId, (uint)DLockEvent.GlobalEvent.MutexEvent,
+                                    new MutexEvent(Name, dEvent.Event, _Queue.First.Value.Handle).GetBytes()))
+                                {
+                                    //_Queue.First.Value.SetKeepToken(true);
+                                }
                             }
                         }
                     }
@@ -132,7 +147,36 @@ namespace DLock.Server
 
             internal void ReturnToken(MutexEvent dEvent, IPAddress ipAddress, UInt16 cableId)
             {
+                lock (_LockObj)
+                {
+                    MutexHanlde mutexHandle = _Queue.FirstOrDefault(s => s.Handle == dEvent.Handle);
 
+                    if (mutexHandle != null)
+                    {
+                        //Move current mutex handle to the last of the queue.
+                        mutexHandle.SetKeepToken(false);
+                        _Queue.Remove(mutexHandle);
+                        _Queue.AddLast(mutexHandle);
+                    }
+
+                    MutexHanlde applyingHandle = _Queue.FirstOrDefault(s => s.ApplyingToken);
+
+                    if (applyingHandle != null)
+                    {
+                        if (applyingHandle != _Queue.First.Value)
+                        {
+                            _Queue.Remove(applyingHandle);
+                            _Queue.AddFirst(applyingHandle);
+                        }
+
+                        if (_Listener.AsyncSend(_Queue.First.Value.CableId, (uint)DLockEvent.GlobalEvent.MutexEvent,
+                             new MutexEvent(Name, applyingHandle.LastEvent, applyingHandle.Handle).GetBytes()))
+                        {
+                            applyingHandle.SetKeepToken(true);
+                        }
+                    }
+
+                }
             }
 
             internal void Exit(MutexEvent dEvent, IPAddress ipAddress, UInt16 cableId)
@@ -158,6 +202,8 @@ namespace DLock.Server
                         _LastAllocatedToken = 1;
                     }
                 }
+
+                _TokenPool.Add(_LastAllocatedToken);
 
                 return _LastAllocatedToken;
             }
@@ -188,7 +234,7 @@ namespace DLock.Server
             switch (dEvent.Event)
             {
                 case DLockEvent.DEvent.InitApplyToken:
-                    handle = AllocToken();
+                    dEvent.Handle = AllocToken();
                     schedule.ApplyToken(dEvent, ipAddress, cableId);
                     break;
                 case DLockEvent.DEvent.ApplyToken:
