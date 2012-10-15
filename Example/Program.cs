@@ -13,8 +13,8 @@ namespace Example
             DLock.Client.Mutex mutex_a = provider.CreateMutex("a");
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-
-            for (int i = 0; i < 1000000; i++)
+            sw.Start();
+            for (int i = 0; i < 1000000000; i++)
             {
                 if (mutex_a.WaitOne())
                 {
@@ -29,14 +29,14 @@ namespace Example
                         mutex_a.ReleaseMutex();
                     }
 
-                    if ((i % 10000) == 0)
+                    if ((i % 100000) == 0)
                     {
-                        System.Threading.Thread.Sleep(1000);
+                        System.Threading.Thread.Sleep(10);
 
                         sw.Stop();
-                        sw.Reset();
                         Console.WriteLine(sw.ElapsedMilliseconds);
-
+                        sw.Reset();
+                        sw.Start();
                     }
 
                     //Console.WriteLine("Leave");
