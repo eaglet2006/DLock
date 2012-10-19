@@ -58,6 +58,7 @@
     <Compile Include="DLockException.cs" />
     <Compile Include="DLockObject.cs" />
     <Compile Include="DLockProvider.cs" />
+    <Compile Include="MessagePool.cs" />
     <Compile Include="Mutex.cs" />
     <Compile Include="ObjManager\MutexManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
