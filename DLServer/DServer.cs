@@ -5,15 +5,15 @@ using System.Text;
 
 using DLock.Server;
 
-namespace DLockService
+namespace DLServer
 {
     class DServer
     {
-        static DLockServer _dlockServer;
+        static DLock.Server.DLockServer _dlockServer;
 
         internal static void Run(int port)
         {
-            _dlockServer = new DLockServer(port);
+            _dlockServer = new DLock.Server.DLockServer(port);
 
             System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
         }

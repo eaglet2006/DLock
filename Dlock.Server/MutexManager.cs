@@ -145,6 +145,46 @@ namespace DLock.Server
                 }
             }
 
+            internal void Disconnect(IPAddress ipAddress, UInt16 cableId)
+            {
+                lock (_LockObj)
+                {
+                    bool suspected = false;
+
+                    MutexHanlde mutexHandle = _Queue.FirstOrDefault(s => s.CableId == cableId && s.IP == ipAddress);
+                    if (mutexHandle.KeepToken)
+                    {
+                        suspected = true;
+                    }
+
+                    _Queue.Remove(mutexHandle);
+
+                    MutexHanlde applyingHandle = _Queue.FirstOrDefault(s => s.ApplyingToken);
+
+                    if (applyingHandle != null)
+                    {
+                        if (applyingHandle != _Queue.First.Value)
+                        {
+                            _Queue.Remove(applyingHandle);
+                            _Queue.AddFirst(applyingHandle);
+                        }
+
+                        if (_Listener.AsyncSend(_Queue.First.Value.CableId, (uint)DLockEvent.GlobalEvent.MutexEvent,
+                             new MutexEvent(Name, applyingHandle.LastEvent, applyingHandle.Handle, suspected).GetBytes()))
+                        {
+                            applyingHandle.SetKeepToken(true);
+                        }
+                    }
+                }
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="dEvent"></param>
+            /// <param name="ipAddress">remote ip address</param>
+            /// <param name="cableId">remote cableid</param>
+            /// <param name="suspected">if remote hold token and disconnected, set suspected</param>
             internal void ReturnToken(MutexEvent dEvent, IPAddress ipAddress, UInt16 cableId)
             {
                 lock (_LockObj)
@@ -214,6 +254,14 @@ namespace DLock.Server
             lock (_TokenLock)
             {
                 _TokenPool.Remove(token);
+            }
+        }
+
+        internal void Disconnected(IPAddress ipAddress, UInt16 cableId)
+        {
+            foreach (MutexTokenScheduling schedule in _NameToQueue.Values)
+            {
+                schedule.Disconnect(ipAddress, cableId);
             }
         }
 

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DLock.Client.ObjManager
 {
-    class MutexManager
+    class MutexManager : MessagePool
     {
         private object _LockObj = new object();
         Dictionary<string, NamedMutexMgr> _NamedMutexMgrDict = new Dictionary<string, NamedMutexMgr>();
@@ -31,6 +31,27 @@ namespace DLock.Client.ObjManager
 
             private object _StateLock = new object();
             private State _CurState = State.Init;
+            private bool _Suspected = false;
+
+            private bool Suspected
+            {
+                get
+                {
+                    lock (_LockObj)
+                    {
+                        return _Suspected;
+                    }
+                }
+
+                set
+                {
+                    lock (_LockObj)
+                    {
+                        _Suspected = value;
+                    }
+                }
+            }
+
 
             private State CurState
             {
@@ -51,7 +72,7 @@ namespace DLock.Client.ObjManager
                 }
             }
 
-            private LinkedList<Mutex> _ActivedMutexes = new LinkedList<Mutex>();
+            private LinkedList<WeakReference> _ActivedMutexes = new LinkedList<WeakReference>();
             
             internal int Handle { get; private set; }
             
@@ -72,7 +93,7 @@ namespace DLock.Client.ObjManager
             }
 
 
-            internal void EventReceivedHandler(DLockEvent dEvent)
+            internal void EventReceivedHandler(MutexEvent dEvent)
             {
                 if (dEvent.Event == DLockEvent.DEvent.InitApplyToken)
                 {
@@ -80,9 +101,13 @@ namespace DLock.Client.ObjManager
 
                     lock (_LockObj)
                     {
-                        foreach (Mutex mutex in _ActivedMutexes)
+                        foreach (WeakReference wr in _ActivedMutexes)
                         {
-                            mutex.Handle = Handle;
+                            Mutex mutex = wr.Target as Mutex;
+                            if (mutex != null)
+                            {
+                                mutex.Handle = Handle;
+                            }
                         }
                     }
                 }
@@ -92,6 +117,7 @@ namespace DLock.Client.ObjManager
                     case DLockEvent.DEvent.ApplyToken:
                     case DLockEvent.DEvent.InitApplyToken:
                         CurState = State.Token;
+                        Suspected = dEvent.Suspected;
                         _WaitEvent.Set();
                         break;
                     case DLockEvent.DEvent.RequireToken:
@@ -104,7 +130,7 @@ namespace DLock.Client.ObjManager
             {
                 lock (_LockObj)
                 {
-                    _ActivedMutexes.AddLast(mutex);
+                    _ActivedMutexes.AddLast(new WeakReference(mutex));
                 }
             }
 
@@ -115,11 +141,19 @@ namespace DLock.Client.ObjManager
                 {
                     //Some mutex may entry more than once for same thread
                     //Has to remove from last.
-                    LinkedListNode<Mutex> last = _ActivedMutexes.Last;
+                    LinkedListNode<WeakReference> last = _ActivedMutexes.Last;
 
                     while (last != null)
                     {
-                        if (last.Value == mutex)
+                        if (last.Value.Target == null)
+                        {
+                            LinkedListNode<WeakReference> temp = last.Previous;
+                            _ActivedMutexes.Remove(last);
+                            last = temp;
+                            continue;
+                        }
+
+                        if ((Mutex)last.Value.Target == mutex)
                         {
                             _ActivedMutexes.Remove(last);
                             return;
@@ -153,8 +187,9 @@ namespace DLock.Client.ObjManager
                 }
             }
 
-            internal bool WaitOne(Mutex mutex, int millisecondsTimeout)
+            internal bool WaitOne(Mutex mutex, int millisecondsTimeout, out bool suspected)
             {
+                suspected = false;
                 Stopwatch entrySW = new Stopwatch();
                 entrySW.Start();
 
@@ -226,6 +261,7 @@ namespace DLock.Client.ObjManager
                         return false;
                     }
 
+                    suspected = Suspected;
                     return true;
                 }
                 finally
@@ -250,7 +286,7 @@ namespace DLock.Client.ObjManager
             {
                 if (_NamedMutexMgrDict.TryGetValue(dEvent.Name, out namedMutexMgr))
                 {
-                    namedMutexMgr.EventReceivedHandler(dEvent);
+                    namedMutexMgr.EventReceivedHandler((MutexEvent)dEvent);
                 }
                 else
                 {
@@ -260,12 +296,14 @@ namespace DLock.Client.ObjManager
 
             if (namedMutexMgr != null)
             {
-                namedMutexMgr.EventReceivedHandler(dEvent);
+                namedMutexMgr.EventReceivedHandler((MutexEvent)dEvent);
             }
         }
 
         internal void ReleaseMutex(Mutex mutex)
         {
+            bool noThreadWatting = false;
+
             lock (_LockObj)
             {
                 NamedMutexMgr namedMutexMgr;
@@ -274,19 +312,24 @@ namespace DLock.Client.ObjManager
                     namedMutexMgr.ReleaseMutex(mutex);
 
                     //no thread wait for this mutex, remove it from manager. 
-                    //if (namedMutexMgr.Count == 0)
-                    //{
-                    //    _NamedMutexMgrDict.Remove(mutex.Name);
-                    //}
+                    if (namedMutexMgr.Count == 0)
+                    {
+                        noThreadWatting = true;
+                    }
                 }
                 else
                 {
                     throw new DLockException(string.Format("Mutex named:{0} doesn't exist", mutex.Name), DLockException.ErrorType.Mutex);
                 }
             }
+
+            if (noThreadWatting)
+            {
+                base.SendDelayMessage(mutex.Name, DLockEvent.DEvent.ReturnToken, 1000);
+            }
         }
 
-        internal bool WaitOne(Mutex mutex, int millisecondsTimeout)
+        internal bool WaitOne(Mutex mutex, int millisecondsTimeout, out bool suspected)
         {
             NamedMutexMgr namedMutexMgr;
 
@@ -300,10 +343,28 @@ namespace DLock.Client.ObjManager
                 }
             }
 
-            return namedMutexMgr.WaitOne(mutex, millisecondsTimeout);
+            return namedMutexMgr.WaitOne(mutex, millisecondsTimeout, out suspected);
 
         }
 
 
+
+        protected override void ProcessMessage(string name, DLockEvent.DEvent evt, object state)
+        {
+            NamedMutexMgr namedMutexMgr;
+            
+            lock (_LockObj)
+            {
+                if (!_NamedMutexMgrDict.TryGetValue(name, out namedMutexMgr))
+                {
+                    return;
+                }
+                else
+                {
+                    namedMutexMgr.ASend(new MutexEvent(name, evt, namedMutexMgr.Handle));
+                    _NamedMutexMgrDict.Remove(name);
+                }
+            }
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace DLockService
         {
             if (args.Length == 0)
             {
-                DServer.Run(Constants.DefaultPort);
+                DLServer.DServer.Run(Constants.DefaultPort);
             }
             else
             {

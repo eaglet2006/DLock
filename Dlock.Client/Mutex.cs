@@ -9,6 +9,54 @@ namespace DLock.Client
     {
         bool _Disposed = false;
 
+        object _LockObj = new object();
+
+        bool _HoldMutex = false;
+
+        bool HoldMutex
+        {
+            get
+            {
+                lock (_LockObj)
+                {
+                    return _HoldMutex; 
+                }
+            }
+
+            set
+            {
+                lock (_LockObj)
+                {
+                    _HoldMutex = value;
+                }
+            }
+        }
+
+        private bool _Suspected = false;
+
+        /// <summary>
+        /// Got mutex but it is suspected.
+        /// Suspected means some other mutex in other client keep the mutex token and disconnected.
+        /// </summary>
+        public bool Suspected
+        {
+            get
+            {
+                lock (_LockObj)
+                {
+                    return _Suspected;
+                }
+            }
+
+            set
+            {
+                lock (_LockObj)
+                {
+                    _Suspected = value;
+                }
+            }
+        }
+
         internal Mutex(DLockProvider provider, string name)
             :base(provider, name)
         {
@@ -17,6 +65,12 @@ namespace DLock.Client
             //System.Threading.Mutex mutex = new System.Threading.Mutex();
             //mutex.ReleaseMutex
 
+        }
+
+        ~Mutex()
+        {
+            Console.WriteLine("Mutex disposed");
+            Dispose();
         }
 
         #region Mutex public  Methods
@@ -31,6 +85,7 @@ namespace DLock.Client
         public void ReleaseMutex()
         {
             Provider.MutexMgr.ReleaseMutex(this);
+            HoldMutex = false;
         }
 
         //
@@ -57,39 +112,6 @@ namespace DLock.Client
         public bool WaitOne()
         {
             return WaitOne(System.Threading.Timeout.Infinite);
-        }
-
-        //
-        // Summary:
-        //     Blocks the current thread until the current System.Threading.WaitHandle receives
-        //     a signal, using a 32-bit signed integer to measure the time interval.
-        //
-        // Parameters:
-        //   millisecondsTimeout:
-        //     The number of milliseconds to wait, or System.Threading.Timeout.Infinite
-        //     (-1) to wait indefinitely.
-        //
-        // Returns:
-        //     true if the current instance receives a signal; otherwise, false.
-        //
-        // Exceptions:
-        //   System.ObjectDisposedException:
-        //     The current instance has already been disposed.
-        //
-        //   System.ArgumentOutOfRangeException:
-        //     millisecondsTimeout is a negative number other than -1, which represents
-        //     an infinite time-out.
-        //
-        //   System.Threading.AbandonedMutexException:
-        //     The wait completed because a thread exited without releasing a mutex. This
-        //     exception is not thrown on Windows 98 or Windows Millennium Edition.
-        //
-        //   System.InvalidOperationException:
-        //     The current instance is a transparent proxy for a System.Threading.WaitHandle
-        //     in another application domain.
-        public bool WaitOne(int millisecondsTimeout)
-        {
-            return Provider.MutexMgr.WaitOne(this, millisecondsTimeout);
         }
 
         //
@@ -125,16 +147,61 @@ namespace DLock.Client
             return WaitOne((int)timeout.TotalMilliseconds);
         }
 
+        //
+        // Summary:
+        //     Blocks the current thread until the current System.Threading.WaitHandle receives
+        //     a signal, using a 32-bit signed integer to measure the time interval.
+        //
+        // Parameters:
+        //   millisecondsTimeout:
+        //     The number of milliseconds to wait, or System.Threading.Timeout.Infinite
+        //     (-1) to wait indefinitely.
+        //
+        // Returns:
+        //     true if the current instance receives a signal; otherwise, false.
+        //
+        // Exceptions:
+        //   System.ObjectDisposedException:
+        //     The current instance has already been disposed.
+        //
+        //   System.ArgumentOutOfRangeException:
+        //     millisecondsTimeout is a negative number other than -1, which represents
+        //     an infinite time-out.
+        //
+        //   System.Threading.AbandonedMutexException:
+        //     The wait completed because a thread exited without releasing a mutex. This
+        //     exception is not thrown on Windows 98 or Windows Millennium Edition.
+        //
+        //   System.InvalidOperationException:
+        //     The current instance is a transparent proxy for a System.Threading.WaitHandle
+        //     in another application domain.
+        public bool WaitOne(int millisecondsTimeout)
+        {
+            bool suspected;
+            bool ret = Provider.MutexMgr.WaitOne(this, millisecondsTimeout, out suspected);
+
+            if (ret)
+            {
+                HoldMutex = true;
+            }
+
+            return ret;
+        }
+
 
         #endregion
         #region IDisposable Members
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             try
             {
                 if (!_Disposed)
                 {
+                    if (HoldMutex)
+                    {
+                        ReleaseMutex();
+                    }
                     //Dispose code
                 }
             }

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DLock.Server")]
+[assembly: AssemblyTitle("DLServer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DLock.Server")]
+[assembly: AssemblyProduct("DLServer")]
 [assembly: AssemblyCopyright("Copyright © eaglet 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f5611b9e-27c7-4182-b398-1f06f81b2f45")]
+[assembly: Guid("d54159dc-d72c-4be5-b075-49db2a9c7f02")]
 
 // Version information for an assembly consists of the following four values:
 //

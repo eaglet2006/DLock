@@ -31,21 +31,25 @@ public abstract class DLockEvent
     [XmlAttribute]
     public int Handle { get; set; }
 
+    [XmlAttribute]
+    public bool Suspected { get; set; }
+
     public DLockEvent()
 	{
 
 	}
 
-    public DLockEvent(DEvent evt, string name, int handle)
+    public DLockEvent(DEvent evt, string name, int handle, bool suspected)
     {
         Event = evt;
         Name = name;
         Handle = handle;
+        Suspected = suspected;
     }
 
 
     public DLockEvent(DEvent evt, string name)
-        :this(evt, name, -1)
+        :this(evt, name, -1, false)
     {
     }
 

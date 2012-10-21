@@ -8,7 +8,7 @@ namespace DLock.Client
     /// <summary>
     /// DLockObject is the base object for all of the distributed objects
     /// </summary>
-    public abstract class DLockObject : IDisposable
+    public abstract class DLockObject
     {
         bool _Disposed = false;
 
@@ -37,26 +37,9 @@ namespace DLock.Client
             Name = name;
         }
 
-        #region IDisposable Members
-
-        public void Dispose()
+        ~DLockObject()
         {
-            try
-            {
-                if (!_Disposed)
-                {
-                    //Dispose code
-                }
-            }
-            catch
-            {
-            }
-            finally
-            {
-                _Disposed = true;
-            }
+            Console.WriteLine("DLock Disposed");
         }
-
-        #endregion
     }
 }

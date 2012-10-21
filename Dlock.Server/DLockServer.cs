@@ -44,6 +44,8 @@ namespace DLock.Server
         /// <param name="args"></param>
         void DisconnectEventHandler(object sender, DisconnectEventArgs args)
         {
+            _MutexManager.Disconnected(((System.Net.IPEndPoint)args.RemoteIPEndPoint).Address, args.CableId);
+
             //Console.WriteLine("Remote socket:{0} disconnected.", args.RemoteIPEndPoint);
         }
 
@@ -55,6 +57,7 @@ namespace DLock.Server
         /// <param name="args"></param>
         void AcceptedEventHandler(object sender, AcceptEventArgs args)
         {
+            
             //Console.WriteLine("Remote socket:{0} connected.", args.RemoteIPEndPoint);
         }
 
