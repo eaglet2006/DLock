@@ -32,6 +32,7 @@ namespace DLock.Client
                 if (!_DLockProviderPool.TryGetValue(ipEndPoint, out result))
                 {
                     result = new DLockProvider(ipEndPoint);
+                    _DLockProviderPool.Add(ipEndPoint, result);
                 }
 
                 return result;

@@ -91,9 +91,9 @@ namespace Example
                         Console.WriteLine("Suspected");
                     }
 
-                    Console.WriteLine("Sleep 1 minute");
+                    Console.WriteLine("Sleep 30 seconds");
 
-                    System.Threading.Thread.Sleep(60 * 1000);
+                    System.Threading.Thread.Sleep(30 * 1000);
 
                 }
                 finally
@@ -112,7 +112,18 @@ namespace Example
 
             //System.Threading.Thread.Sleep(5000);
 
-            MutexExample("127.0.0.1");
+            while (true)
+            {
+                try
+                {
+                    MutexExample("127.0.0.1");
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    System.Threading.Thread.Sleep(10 * 1000);
+                }
+            }
 
             //TestPerformance("127.0.0.1");
 

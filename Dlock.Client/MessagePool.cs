@@ -108,7 +108,13 @@ namespace DLock.Client
                 {
                     foreach (Message message in procMessages)
                     {
-                        ProcessMessage(message.Name, message.Event, message.State);
+                        try
+                        {
+                            ProcessMessage(message.Name, message.Event, message.State);
+                        }
+                        catch
+                        {
+                        }
                     }
 
                     lock (_LockObj)
