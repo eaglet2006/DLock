@@ -69,7 +69,6 @@ namespace DLock.Client
 
         ~Mutex()
         {
-            Console.WriteLine("Mutex disposed");
             Dispose();
         }
 
@@ -182,6 +181,7 @@ namespace DLock.Client
 
             if (ret)
             {
+                Suspected = suspected;
                 HoldMutex = true;
             }
 
@@ -190,6 +190,7 @@ namespace DLock.Client
 
 
         #endregion
+        
         #region IDisposable Members
 
         public void Dispose()

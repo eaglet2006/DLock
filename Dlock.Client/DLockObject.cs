@@ -39,7 +39,6 @@ namespace DLock.Client
 
         ~DLockObject()
         {
-            Console.WriteLine("DLock Disposed");
         }
     }
 }

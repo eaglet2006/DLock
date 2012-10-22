@@ -86,6 +86,15 @@ namespace Example
                 try
                 {
                     //do something.
+                    if (mutex_a.Suspected)
+                    {
+                        Console.WriteLine("Suspected");
+                    }
+
+                    Console.WriteLine("Sleep 1 minute");
+
+                    System.Threading.Thread.Sleep(60 * 1000);
+
                 }
                 finally
                 {
@@ -96,14 +105,14 @@ namespace Example
 
         static void Main(string[] args)
         {
-            TestDispose("127.0.0.1");
+            //TestDispose("127.0.0.1");
 
             //GC.Collect(GC.MaxGeneration);
             //GC.Collect(GC.MaxGeneration);
 
             //System.Threading.Thread.Sleep(5000);
 
-            //MutexExample("127.0.0.1");
+            MutexExample("127.0.0.1");
 
             //TestPerformance("127.0.0.1");
 

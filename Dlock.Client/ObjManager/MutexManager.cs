@@ -11,7 +11,7 @@ namespace DLock.Client.ObjManager
         private object _LockObj = new object();
         Dictionary<string, NamedMutexMgr> _NamedMutexMgrDict = new Dictionary<string, NamedMutexMgr>();
         readonly DLockProvider _Provider;
-
+    
         class NamedMutexMgr
         {
             enum State
@@ -92,6 +92,10 @@ namespace DLock.Client.ObjManager
                 _Provider = provider;
             }
 
+            internal void Disconnect()
+            {
+                _WaitEvent.Set();
+            }
 
             internal void EventReceivedHandler(MutexEvent dEvent)
             {
@@ -189,6 +193,11 @@ namespace DLock.Client.ObjManager
 
             internal bool WaitOne(Mutex mutex, int millisecondsTimeout, out bool suspected)
             {
+                if (!_Provider.Connected)
+                {
+                    throw new DLockException("Remote server disconneted.", DLockException.ErrorType.Disconnect);
+                }
+
                 suspected = false;
                 Stopwatch entrySW = new Stopwatch();
                 entrySW.Start();
@@ -261,6 +270,12 @@ namespace DLock.Client.ObjManager
                         return false;
                     }
 
+                    if (!_Provider.Connected)
+                    {
+                        ReleaseMutex(mutex);
+                        throw new DLockException("Remote server disconneted.", DLockException.ErrorType.Disconnect);
+                    }
+
                     suspected = Suspected;
                     return true;
                 }
@@ -277,6 +292,19 @@ namespace DLock.Client.ObjManager
         {
             _Provider = provider;
         }
+
+        internal void Disconnect()
+        {
+            lock (_LockObj)
+            {
+                foreach (NamedMutexMgr namedMutexMgr in _NamedMutexMgrDict.Values)
+                {
+                    namedMutexMgr.Disconnect();
+                }
+            }
+        }
+
+
 
         internal void EventReceivedHandler(DLockEvent dEvent)
         {
@@ -332,6 +360,11 @@ namespace DLock.Client.ObjManager
         internal bool WaitOne(Mutex mutex, int millisecondsTimeout, out bool suspected)
         {
             NamedMutexMgr namedMutexMgr;
+
+            if (!_Provider.Connected)
+            {
+                throw new DLockException("Remote server disconneted.", DLockException.ErrorType.Disconnect);
+            }
 
             lock (_LockObj)
             {

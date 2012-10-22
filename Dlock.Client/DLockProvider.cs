@@ -24,6 +24,14 @@ namespace DLock.Client
             }
         }
 
+        internal bool Connected
+        {
+            get
+            {
+                return _Connection.Connected;
+            }
+        }
+
         /// <summary>
         /// DataReceived event will be called back when server get message from client which connect to.
         /// </summary>
@@ -49,6 +57,13 @@ namespace DLock.Client
         {
 
         }
+
+
+        void DisconnectedEventHandler(object sender, DisconnectEventArgs args)
+        {
+            _MutexMangager.Disconnect();
+        }
+
 
         private DLockObject CreateObj(string name, DLockEvent.GlobalEvent globalEvent)
         {
@@ -83,7 +98,7 @@ namespace DLock.Client
 
             _Connection.ReceiveEventHandler += new EventHandler<ReceiveEventArgs>(ReceiveEventHandler);
             _Connection.ConnectedEventHandler += new EventHandler<CableConnectedEventArgs>(ConnectedEventHandler);
-
+            _Connection.RemoteDisconnected += new EventHandler<DisconnectEventArgs>(DisconnectedEventHandler);
             _Connection.Connect(5000);
         }
 
