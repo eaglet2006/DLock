@@ -394,8 +394,12 @@ namespace DLock.Client.ObjManager
                 }
                 else
                 {
-                    namedMutexMgr.ASend(new MutexEvent(name, evt, namedMutexMgr.Handle));
-                    _NamedMutexMgrDict.Remove(name);
+                    //no thread wait for this mutex, remove it from manager. 
+                    if (namedMutexMgr.Count == 0)
+                    {
+                        namedMutexMgr.ASend(new MutexEvent(name, evt, namedMutexMgr.Handle));
+                        _NamedMutexMgrDict.Remove(name);
+                    }
                 }
             }
         }
