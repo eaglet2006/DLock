@@ -53,7 +53,7 @@ namespace DLock.Client
             #endregion
         }
 
-        SortedList<Message, DateTime> _MessageList = new SortedList<Message, DateTime>();
+        List<Message> _MessageList = new List<Message>();
         object _LockObj = new object();
 
         System.Threading.Thread _Thread;
@@ -94,8 +94,10 @@ namespace DLock.Client
                 lock (_LockObj)
                 {
                     DateTime now = DateTime.Now;
+                    
+                    _MessageList.Sort();
 
-                    foreach (Message message in _MessageList.Keys)
+                    foreach (Message message in _MessageList)
                     {
                         if (now >= message.ActiveTime)
                         {
@@ -143,7 +145,7 @@ namespace DLock.Client
 
             lock (_LockObj)
             {
-                foreach (Message msg in _MessageList.Keys)
+                foreach (Message msg in _MessageList)
                 {
                     if (msg.Equals(message))
                     {
@@ -156,7 +158,7 @@ namespace DLock.Client
                     }
                 }
 
-                _MessageList.Add(message, DateTime.Now);
+                _MessageList.Add(message);
             }
 
 
