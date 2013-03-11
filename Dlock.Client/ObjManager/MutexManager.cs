@@ -9,6 +9,7 @@ namespace DLock.Client.ObjManager
     class MutexManager : MessagePool
     {
         private object _LockObj = new object();
+        
         Dictionary<string, NamedMutexMgr> _NamedMutexMgrDict = new Dictionary<string, NamedMutexMgr>();
         readonly DLockProvider _Provider;
     
@@ -27,6 +28,8 @@ namespace DLock.Client.ObjManager
             private System.Threading.ManualResetEvent _WaitEvent = new System.Threading.ManualResetEvent(false);
 
             private object _LockObj = new object();
+            private object _ActivedMutexesLock = new object();
+
             private object _Entry = new object();
 
             private object _StateLock = new object();
@@ -80,7 +83,7 @@ namespace DLock.Client.ObjManager
             {
                 get
                 {
-                    lock (_LockObj)
+                    lock (_ActivedMutexesLock)
                     {
                         return _ActivedMutexes.Count;
                     }
@@ -103,7 +106,7 @@ namespace DLock.Client.ObjManager
                 {
                     Handle = dEvent.Handle;
 
-                    lock (_LockObj)
+                    lock (_ActivedMutexesLock)
                     {
                         foreach (WeakReference wr in _ActivedMutexes)
                         {
@@ -132,7 +135,7 @@ namespace DLock.Client.ObjManager
 
             private void Add(Mutex mutex)
             {
-                lock (_LockObj)
+                lock (_ActivedMutexesLock)
                 {
                     _ActivedMutexes.AddLast(new WeakReference(mutex));
                 }
@@ -141,7 +144,7 @@ namespace DLock.Client.ObjManager
 
             private void Remove(Mutex mutex)
             {
-                lock (_LockObj)
+                lock (_ActivedMutexesLock)
                 {
                     //Some mutex may entry more than once for same thread
                     //Has to remove from last.
